@@ -1,0 +1,42 @@
+name: Telegram Smart Bot Automation
+
+on:
+  schedule:
+    # Runs every 3 hours (IST-aligned: 3 AM, 6 AM, 9 AM, etc.)
+    - cron: '30 */3 * * *'
+  workflow_dispatch: # Allows you to trigger it manually anytime from GitHub
+
+jobs:
+  run-bot-script:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required so the workflow can commit and push CSV/offset updates
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Execute Smart Bot Script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python scripts/smart_bot.py
+
+      - name: Commit and Push Data Updates
+        run: |
+          git config --global user.name "BotAutomation"
+          git config --global user.email "bot@github.com"
+          
+          # Stage the files updated by your Python script
+          git add questions.csv last_offset.txt
+          
+          # Commit only if there are changes; otherwise skip cleanly
+          git commit -m "Auto-update questions.csv and offset bookmark [skip ci]" || echo "No changes to commit"
+          git push
