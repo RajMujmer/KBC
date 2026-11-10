@@ -81,6 +81,8 @@ button{font:inherit;color:inherit;cursor:pointer}
   <div class="top">
     <p class="brand disp">Kaun Banega Crorepati</p>
     <div><button class="btn ghost tg" onclick="document.getElementById('lad').classList.toggle('show')">Ladder</button>
+    <button class="btn ghost" id="snd" onclick="toggle('snd')" title="Sound effects on/off" aria-label="Sound effects">🔊</button>
+    <button class="btn ghost" id="vox" onclick="toggle('vox')" title="Host voice on/off" aria-label="Host voice">🎙️</button>
     <button class="btn ghost" id="quit" onclick="askQuit()">Quit</button></div>
   </div>
   <div class="lls" id="lls"></div>
@@ -164,8 +166,32 @@ const L="ABCD",$=id=>document.getElementById(id);
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 let g;
 
+let AC=null,pref={snd:true,vox:true};
+try{Object.assign(pref,JSON.parse(localStorage.getItem("kbcPref")||"{}"))}catch(e){}
+const TTS="speechSynthesis" in window;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==="suspended")AC.resume();return AC}
+function tone(f,t,d,ty,v,f2){const c=ac();if(!c||!pref.snd)return;const T=c.currentTime+t,o=c.createOscillator(),gn=c.createGain();o.type=ty||"sine";o.frequency.setValueAtTime(f,T);if(f2)o.frequency.exponentialRampToValueAtTime(f2,T+d);gn.gain.setValueAtTime(.0001,T);gn.gain.linearRampToValueAtTime(v||.12,T+.03);gn.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(gn);gn.connect(c.destination);o.start(T);o.stop(T+d+.05)}
+const SFX={
+start(){[196,247,294,392,494].forEach((f,i)=>tone(f,i*.16,1.1,"triangle",.12))},
+pick(){tone(660,0,.09,"square",.05)},
+lock(){tone(140,0,2.6,"sawtooth",.05,420);for(let i=0;i<10;i++)tone(98,i*.26,.2,"square",.07)},
+ok(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.55,"triangle",.15))},
+win(){[523,523,523,659,784,1047,1047,1319].forEach((f,i)=>tone(f,i*.2,.6,"triangle",.15))},
+bad(){tone(240,0,.6,"sawtooth",.14,110);tone(170,.3,.8,"sawtooth",.14,70)},
+life(){tone(500,0,.45,"sine",.12,1300)},
+ring(){for(let i=0;i<2;i++){tone(1000,i,.18,"square",.05);tone(1000,i+.28,.18,"square",.05)}}
+};
+let voice=null;
+function pickVoice(){const v=TTS?speechSynthesis.getVoices():[];voice=v.find(x=>x.lang==="en-IN")||v.find(x=>x.lang.startsWith("hi"))||v.find(x=>x.lang.startsWith("en"))||null}
+if(TTS){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(t){if(!TTS||!pref.vox)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="en-IN";u.rate=.95;speechSynthesis.speak(u)}
+const spk=n=>n>=1e7?"ek crore rupaye":n+" rupaye";
+function announce(){const q=g.q;speak(`Sawaal number ${g.i+1}, ${spk(P[g.i])} ke liye. ${q[0]} ${q[1].map((t,k)=>"Option "+L[k]+", "+t+".").join(" ")}`)}
+function ui(){$("snd").textContent=pref.snd?"🔊":"🔇";$("vox").textContent=pref.vox?"🎙️":"🤐";$("snd").setAttribute("aria-pressed",pref.snd);$("vox").setAttribute("aria-pressed",pref.vox)}
+function toggle(k){pref[k]=!pref[k];if(k==="vox"&&!pref.vox&&TTS)speechSynthesis.cancel();try{localStorage.setItem("kbcPref",JSON.stringify(pref))}catch(e){}ui();if(pref.snd)SFX.pick()}
+ui();
 function show(s){["home","game","end"].forEach(x=>$(x).classList.toggle("hidden",x!==s))}
-function start(){g={i:0,q:pickQ(0),sel:null,ph:"pick",gone:[],used:{}};show("game");closeM();draw()}
+function start(){g={i:0,q:pickQ(0),sel:null,ph:"pick",gone:[],used:{}};show("game");closeM();draw();SFX.start();announce()}
 function safe(i){return i>9?P[9]:i>4?P[4]:0}
 function draw(keep){
   const a=g.q[2];
@@ -188,14 +214,14 @@ function draw(keep){
   if(g.ph==="pick"&&g.sel!==null&&!keep)$("msg").textContent="";
 }
 function msg(t){$("msg").textContent=t}
-function pick(k){if(g.ph!=="pick"||g.gone.includes(k))return;g.sel=k;draw();msg(`Aapne ${L[k]}: ${g.q[1][k]} chuna hai. Pakka?`)}
-function lock(){g.ph="locked";draw();msg("Lock kiya gaya… dhadkan tez ho rahi hai 💓");setTimeout(reveal,2600)}
+function pick(k){if(g.ph!=="pick"||g.gone.includes(k))return;g.sel=k;SFX.pick();speak("Aapne "+L[k]+" chuna. Lock kiya jaye?");draw();msg(`Aapne ${L[k]}: ${g.q[1][k]} chuna hai. Pakka?`)}
+function lock(){g.ph="locked";SFX.lock();speak("Lock kiya gaya.");draw();msg("Lock kiya gaya… dhadkan tez ho rahi hai 💓");setTimeout(reveal,2600)}
 function reveal(){
-  g.ph="done";g.ok=g.sel===g.q[2];draw();
+  g.ph="done";g.ok=g.sel===g.q[2];draw();if(g.ok){SFX[g.i===14?"win":"ok"]();speak(g.i===14?"Badhai ho! Aap crorepati ban gaye!":"Sahi jawab! Aapne "+spk(P[g.i])+" jeet liye.")}else{SFX.bad();speak("Galat jawab. Sahi jawab tha "+L[g.q[2]]+", "+g.q[1][g.q[2]]+".")}
   if(g.ok)msg(g.i===14?"Aap CROREPATI ban gaye! 🎉":[4,9].includes(g.i)?`Sahi jawab! ${money(P[g.i])} ab pakka aapka hai. 🔒`:`Sahi jawab! Aapne ${money(P[g.i])} jeet liye.`);
   else msg(`Galat jawab. Sahi jawab tha ${L[g.q[2]]}: ${g.q[1][g.q[2]]}.`);
 }
-function next(){g.i++;g.q=pickQ(g.i);g.sel=null;g.ph="pick";g.gone=[];draw()}
+function next(){g.i++;g.q=pickQ(g.i);g.sel=null;g.ph="pick";g.gone=[];draw();announce()}
 function finish(how){
   const amt=how==="win"?P[14]:how==="quit"?(g.i?P[g.i-1]:0):safe(g.i);
   const cleared=how==="win"?15:g.i;
@@ -203,7 +229,7 @@ function finish(how){
   $("ea").textContent=amt?money(amt):"₹0";
   $("et").textContent=how==="win"?"Saare 15 sawaal sahi. Kamaal kar diya!":how==="quit"?"Samajhdari ka faisla. Aap itni rakam ghar le ja rahe hain.":(amt?`Aap pichhle checkpoint ki rakam le ja rahe hain.`:"Pehle checkpoint se pehle galat jawab, isliye rakam nahin mili.");
   $("es").textContent=`${cleared} sawaal paar · ${Object.keys(g.used).length} of 4 lifelines used`;
-  show("end");
+  show("end");speak(amt?`Aap ghar le ja rahe hain ${spk(amt)}.`:"Is baar kuch nahin mila. Phir koshish kijiye.");
 }
 function askQuit(){
   const amt=g.i?P[g.i-1]:0;
@@ -218,11 +244,11 @@ function lifeline(k){
   if(k==="f"){
     const wr=live.filter(x=>x!==a).sort(()=>Math.random()-.5).slice(0,2);
     g.gone.push(...wr);if(wr.includes(g.sel))g.sel=null;
-    draw();msg("Computer ji ne do galat jawab hata diye. 🔀");
+    SFX.life();speak("Computer ji ne do galat jawab hata diye.");draw();msg("Computer ji ne do galat jawab hata diye. 🔀");
   }
   if(k==="x"){
     g.q=pickQ(g.i,g.q[0]);g.sel=null;g.gone=[];
-    draw();msg("Sawaal badal diya gaya, inaam wahi hai. 🔄");
+    SFX.life();draw();announce();msg("Sawaal badal diya gaya, inaam wahi hai. 🔄");
   }
   if(k==="a"){
     const pc=Math.max(.4,.9-.035*g.i)+(Math.random()*.1-.05);
@@ -234,6 +260,7 @@ function lifeline(k){
     draw();
     openM(`<h2>👥 Audience Poll</h2><div class="bars">${[0,1,2,3].map(x=>`<div class="bar ${pct[x]===top?"top":""}"><em>${pct[x]??0}%</em><span data-h="${(pct[x]??0)*1.5}"></span><em><b>${L[x]}</b></em></div>`).join("")}</div><button class="btn" onclick="closeM()">Sawaal par wapas</button>`);
     setTimeout(()=>document.querySelectorAll(".bar span").forEach(s=>s.style.height=s.dataset.h+"px"),60);
+    SFX.life();const tp=live.find(x=>pct[x]===top);speak(`Audience ne vote kar diya. Sabse zyada vote ${L[tp]} ko mile, ${top} percent.`);
   }
   if(k==="p"){
     const name=rnd(["Rohan","Meera","Arjun","Priya","Kabir"]);
@@ -243,7 +270,7 @@ function lifeline(k){
     const txt=`Haan ji! Sawaal sun liya. ${conf}… jawab hoga ${L[pickK]}: ${g.q[1][pickK]}. Best of luck!`;
     draw();
     openM(`<h2>📞 Phone a Friend</h2><p class="disp" style="margin:0 0 .6rem">Calling ${name}…</p><div class="say" id="say">Ring ring… ring ring…</div><button class="btn" id="back" disabled onclick="closeM()">Sawaal par wapas</button>`);
-    let n=0;setTimeout(()=>{$("say").textContent="";const t=setInterval(()=>{$("say").textContent=`${name}: “${txt.slice(0,++n)}`+(n>=txt.length?"”":"");if(n>=txt.length){clearInterval(t);$("back").disabled=false}},28)},1600);
+    SFX.ring();let n=0;setTimeout(()=>{speak(txt);$("say").textContent="";const t=setInterval(()=>{$("say").textContent=`${name}: “${txt.slice(0,++n)}`+(n>=txt.length?"”":"");if(n>=txt.length){clearInterval(t);$("back").disabled=false}},28)},1600);
   }
 }
 </script>
