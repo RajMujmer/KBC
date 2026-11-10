@@ -27,7 +27,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python scripts/smart_bot.py
+        run: python extract_question.py
 
       - name: Commit and Push Data Updates
         run: |
