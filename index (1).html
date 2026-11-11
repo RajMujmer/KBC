@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kaun Banega Crorepati</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Hind:wght@400;600&display=swap">
+<style>
+:root{--bg:#070622;--panel:#14123f;--panel2:#221e6b;--gold:#f2b632;--gold2:#ffd978;--text:#f4f1ff;--muted:#a9a5d6;--ok:#1e9e5a;--bad:#d23b4a;--orange:#ff8a1f;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100vh;background:var(--bg) radial-gradient(ellipse at 50% 20%,#34238f 0,#150f52 40%,var(--bg) 80%);color:var(--text);font:400 1.05rem/1.4 Hind,system-ui,sans-serif}
+h1,h2,.disp{font-family:Cinzel,Georgia,serif;font-weight:800;letter-spacing:.02em}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1000px;margin:0 auto;padding:1rem}
+.hidden{display:none!important}
+.hex,.opt .in,.q{clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,16px 100%,0 50%)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.brand{font-size:1.1rem;color:var(--gold2);margin:0}
+.btn{background:var(--gold);color:#1a1033;border:0;border-radius:999px;padding:.65rem 1.4rem;font-weight:600}
+.btn.ghost{background:transparent;color:var(--text);border:1.5px solid var(--muted)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,.ll:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.lls{display:flex;gap:.8rem;justify-content:center;margin:1rem 0}
+.ll{width:76px;display:flex;flex-direction:column;align-items:center;gap:.25rem;background:none;border:0;font-size:.8rem;color:var(--muted)}
+.ll i{font-style:normal;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:var(--panel2);border:2px solid var(--gold);transition:transform .15s}
+.ll:not(:disabled):hover i{transform:scale(1.08)}
+.ll:disabled{cursor:default}
+.ll:disabled i{opacity:.35;border-color:var(--muted);position:relative}
+.ll:disabled i::after{content:"✕";position:absolute;color:var(--bad);font-size:2rem;font-weight:800}
+.grid{display:grid;grid-template-columns:1fr 230px;gap:1.2rem;align-items:start}
+.playing{text-align:center;color:var(--muted);margin:.2rem 0 .8rem}
+.playing b{color:var(--gold2);font-family:Cinzel,Georgia,serif;font-size:1.3rem}
+.q{background:var(--gold);padding:2px;margin-bottom:1rem}
+.q div{clip-path:inherit;background:var(--panel);padding:1.3rem 2.2rem;text-align:center;font-size:1.2rem;font-weight:600;min-height:5.2rem;display:grid;place-items:center}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.opt{background:var(--gold);padding:2px;border:0;text-align:left;clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,16px 100%,0 50%)}
+.opt .in{background:var(--panel);padding:.9rem 1.7rem;display:flex;gap:.7rem;align-items:center;transition:background .2s;min-height:3.4rem}
+.opt b{color:var(--gold2)}
+.opt:focus-visible .in{box-shadow:inset 0 0 0 3px #fff}
+.opt:not(:disabled):hover .in{background:var(--panel2)}
+.opt.sel .in{background:var(--gold);color:#1a1033}.opt.sel b,.opt.lockd b{color:#1a1033}
+.opt.lockd .in{background:var(--orange);color:#1a1033;animation:bl .45s infinite alternate}
+.opt.ok .in{background:var(--ok)}.opt.ok b,.opt.bad b{color:#fff}
+.opt.bad .in{background:var(--bad)}
+.opt.gone{visibility:hidden}
+@keyframes bl{to{background:#ffd0a0}}
+.msg{min-height:2.8rem;text-align:center;margin:1rem 0 .5rem;color:var(--gold2)}
+.act{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap}
+.ladder{list-style:none;margin:0;padding:.5rem;background:var(--panel);border:2px solid var(--gold);border-radius:12px}
+.ladder li{display:flex;justify-content:space-between;padding:.22rem .6rem;border-radius:6px;color:var(--muted);font-size:.95rem}
+.ladder li.cp{color:var(--gold2);font-weight:600}
+.ladder li.done{color:var(--text)}
+.ladder li.cur{background:var(--gold);color:#1a1033;font-weight:600}
+.tg{display:none}
+.modal{position:fixed;inset:0;background:rgba(3,2,20,.85);display:grid;place-items:center;padding:1rem;z-index:5}
+.card{background:var(--panel);border:2px solid var(--gold);border-radius:16px;padding:1.4rem;max-width:480px;width:100%;text-align:center}
+.card h2{margin:.2rem 0 1rem;font-size:1.3rem;color:var(--gold2)}
+.bars{display:flex;gap:1rem;justify-content:center;align-items:flex-end;height:190px;margin-bottom:1rem}
+.bar{width:60px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:.2rem}
+.bar span{display:block;width:100%;background:linear-gradient(var(--gold2),var(--gold));border-radius:6px 6px 0 0;height:0;transition:height 1.2s cubic-bezier(.2,.8,.2,1)}
+.bar em{font-style:normal;font-size:.9rem}
+.bar.top span{background:linear-gradient(#5fe0a0,var(--ok))}
+.say{background:var(--panel2);border-radius:12px;padding:1rem;text-align:left;min-height:7rem;margin-bottom:1rem}
+.big{font-size:clamp(2.2rem,8vw,4rem);color:var(--gold2);margin:.4rem 0}
+.center{text-align:center;padding-top:8vh}
+.stats{color:var(--muted);margin:1rem 0 1.6rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.ladder{display:none}.ladder.show{display:block}.tg{display:inline-block}.opts{grid-template-columns:1fr}.q div{padding:1rem 1.6rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="home" class="center">
+  <h1 class="disp" style="font-size:clamp(2rem,7vw,3.6rem);margin:0;color:var(--gold2)">Kaun Banega Crorepati</h1>
+  <p style="max-width:34rem;margin:1.2rem auto;color:var(--muted)">15 sawaal. 4 lifelines. Safe checkpoints at ₹10,000 and ₹3,20,000. Answer them all and walk away with ₹1 Crore.</p>
+  <button class="btn" id="go" onclick="start()" disabled>Hot seat par baithiye</button>
+  <p id="src" style="color:var(--muted);font-size:.9rem;margin-top:1rem">Questions load ho rahe hain…</p>
+</section>
+
+<section id="game" class="hidden">
+  <div class="top">
+    <p class="brand disp">Kaun Banega Crorepati</p>
+    <div><button class="btn ghost tg" onclick="document.getElementById('lad').classList.toggle('show')">Ladder</button>
+    <button class="btn ghost" id="snd" onclick="toggle('snd')" title="Sound effects on/off" aria-label="Sound effects">🔊</button>
+    <button class="btn ghost" id="vox" onclick="toggle('vox')" title="Host voice on/off" aria-label="Host voice">🎙️</button>
+    <button class="btn ghost" id="quit" onclick="askQuit()">Quit</button></div>
+  </div>
+  <div class="lls" id="lls"></div>
+  <div class="grid">
+    <div>
+      <p class="playing" id="playing"></p>
+      <div class="q"><div id="qt"></div></div>
+      <div class="opts" id="opts"></div>
+      <p class="msg" id="msg" aria-live="polite"></p>
+      <div class="act" id="act"></div>
+    </div>
+    <ol class="ladder" id="lad"></ol>
+  </div>
+</section>
+
+<section id="end" class="hidden center">
+  <h2 id="eh" style="font-size:1.6rem;margin:0"></h2>
+  <div class="big disp" id="ea"></div>
+  <p id="et" style="max-width:32rem;margin:0 auto"></p>
+  <p class="stats" id="es"></p>
+  <button class="btn" onclick="start()">Phir se khelein</button>
+</section>
+
+</div>
+<div class="modal hidden" id="modal" role="dialog" aria-modal="true"><div class="card" id="card"></div></div>
+
+<script>
+const P=[1000,2000,3000,5000,10000,20000,40000,80000,160000,320000,640000,1250000,2500000,5000000,10000000];
+const money=n=>n>=1e7?"₹1 Crore":"₹"+n.toLocaleString("en-IN");
+const Q=[
+["Which animal is the national animal of India?",["Lion","Tiger","Elephant","Leopard"],1],
+["How many players from one team are on the field in a cricket match?",["9","10","11","12"],2],
+["In which city is the Taj Mahal located?",["Delhi","Agra","Jaipur","Lucknow"],1],
+["Who is credited with writing the epic Ramayana?",["Vyasa","Valmiki","Tulsidas","Kalidasa"],1],
+["Which gas do plants absorb from the air for photosynthesis?",["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],2],
+["What is the capital of Odisha?",["Cuttack","Bhubaneswar","Puri","Rourkela"],1],
+["In which year did India win its first Cricket World Cup?",["1975","1983","1987","2011"],1],
+["Which Mughal emperor built the Red Fort in Delhi?",["Akbar","Jahangir","Shah Jahan","Aurangzeb"],2],
+["Which Indian physicist won the Nobel Prize in Physics in 1930?",["Homi Bhabha","C. V. Raman","S. Chandrasekhar","S. N. Bose"],1],
+["Which city hosted the first modern Olympic Games in 1896?",["Paris","Athens","London","Rome"],1],
+["Who was the first Indian to win an individual Olympic gold medal?",["Abhinav Bindra","Neeraj Chopra","Rajyavardhan Rathore","Leander Paes"],0],
+["Which Article of the Indian Constitution abolishes untouchability?",["Article 14","Article 15","Article 17","Article 21"],2],
+["In which city is the headquarters of ISRO located?",["Hyderabad","Thiruvananthapuram","Bengaluru","Sriharikota"],2],
+["Who was the first Indian woman to win an Olympic medal?",["P. V. Sindhu","Karnam Malleswari","Mary Kom","Saina Nehwal"],1],
+["The Battle of Plassey was fought in which year?",["1757","1764","1857","1526"],0]
+];
+const SP=[
+["Which festival is known as the festival of lights?",["Holi","Diwali","Eid","Baisakhi"],1],
+["Who is known as the ‘Missile Man of India’?",["Vikram Sarabhai","A. P. J. Abdul Kalam","Homi Bhabha","Satish Dhawan"],1],
+["Which city was the capital of Rajaraja Chola I?",["Madurai","Thanjavur","Kanchipuram","Gangaikonda Cholapuram"],1]
+];
+const X=[
+[["What is the national flower of India?",["Rose","Lotus","Marigold","Jasmine"],1],["Which colour is at the top of the Indian national flag?",["Green","White","Saffron","Blue"],2]],
+[["Which is the largest planet in our solar system?",["Saturn","Jupiter","Neptune","Earth"],1],["Who is called the Father of the Nation in India?",["Jawaharlal Nehru","Sardar Patel","Mahatma Gandhi","Subhas Chandra Bose"],2]],
+[["Which ocean lies to the south of India?",["Pacific Ocean","Atlantic Ocean","Indian Ocean","Arctic Ocean"],2],["What is the currency of Japan?",["Won","Yen","Yuan","Baht"],1]],
+[["Which is the largest Indian state by area?",["Madhya Pradesh","Rajasthan","Maharashtra","Uttar Pradesh"],1],["Who wrote the novel ‘Godaan’?",["Premchand","Rabindranath Tagore","R. K. Narayan","Bankim Chandra"],0]],
+[["What is the chemical symbol of gold?",["Ag","Au","Gd","Go"],1],["Which is the smallest bone in the human body?",["Femur","Stapes","Ulna","Hyoid"],1]],
+[["Who was the first President of India?",["S. Radhakrishnan","Rajendra Prasad","Zakir Husain","V. V. Giri"],1],["Which Indian state is known as the ‘Land of Five Rivers’?",["Haryana","Punjab","Gujarat","Bihar"],1]],
+[["Which is the highest civilian honour of India?",["Padma Vibhushan","Bharat Ratna","Padma Bhushan","Param Vir Chakra"],1],["In which year did India become a republic?",["1947","1950","1952","1949"],1]],
+[["Who founded the Maurya Empire?",["Ashoka","Bindusara","Chandragupta Maurya","Pushyamitra Shunga"],2],["The Konark Sun Temple is located in which state?",["Tamil Nadu","Odisha","Karnataka","Gujarat"],1]],
+[["Who is regarded as the chief architect of the Indian Constitution?",["Rajendra Prasad","B. R. Ambedkar","Jawaharlal Nehru","Sardar Patel"],1],["Which is the deepest known ocean trench?",["Java Trench","Mariana Trench","Puerto Rico Trench","Tonga Trench"],1]],
+[["Who was the first Indian to travel into space?",["Rakesh Sharma","Ravish Malhotra","Kalpana Chawla","Sunita Williams"],0],["Which organ of the human body produces insulin?",["Liver","Pancreas","Kidney","Spleen"],1]],
+[["Who was the last Viceroy of British India?",["Lord Curzon","Lord Mountbatten","Lord Wavell","Lord Irwin"],1],["Which country gifted the Statue of Liberty to the USA?",["Britain","France","Spain","Italy"],1]],
+[["Which classical dance form originated in Kerala?",["Kuchipudi","Kathakali","Odissi","Bharatanatyam"],1],["Who is traditionally credited with writing the ‘Arthashastra’?",["Kalidasa","Kautilya","Banabhatta","Patanjali"],1]],
+[["Who was the first Asian to win the Nobel Prize in Literature?",["Rabindranath Tagore","R. K. Narayan","Mulk Raj Anand","Premchand"],0],["In which year was the Reserve Bank of India established?",["1925","1935","1947","1949"],1]],
+[["Who was the first Indian woman to climb Mount Everest?",["Bachendri Pal","Santosh Yadav","Arunima Sinha","Premlata Agarwal"],0],["The Indus Valley site Dholavira is located in which state?",["Rajasthan","Gujarat","Haryana","Punjab"],1]],
+[["In which year did Gandhi lead the Dandi (Salt) March?",["1919","1930","1942","1921"],1],["Who wrote the Sanskrit play ‘Abhijnanasakuntalam’?",["Bhasa","Kalidasa","Banabhatta","Shudraka"],1]]
+];
+const B=Q.map((q,i)=>[q,...X[i]]);B[0].push(SP[0]);B[5].push(SP[1]);B[12].push(SP[2]);
+let seen=new Set();try{seen=new Set(JSON.parse(localStorage.getItem("kbcSeen")||"[]"))}catch(e){}
+function mk(q){const ix=[0,1,2,3].sort(()=>Math.random()-.5);return [q[0],ix.map(j=>q[1][j]),ix.indexOf(q[2])]}
+function pickQ(i,ex){
+  const pool=B[i].filter(q=>q[0]!==ex);
+  let fresh=pool.filter(q=>!seen.has(q[0]));
+  if(!fresh.length){B[i].forEach(q=>seen.delete(q[0]));fresh=pool}
+  const q=fresh[Math.floor(Math.random()*fresh.length)];seen.add(q[0]);
+  try{localStorage.setItem("kbcSeen",JSON.stringify([...seen]))}catch(e){}
+  return mk(q);
+}
+const L="ABCD",$=id=>document.getElementById(id);
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+let g;
+
+let AC=null,pref={snd:true,vox:true};
+try{Object.assign(pref,JSON.parse(localStorage.getItem("kbcPref")||"{}"))}catch(e){}
+const TTS="speechSynthesis" in window;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==="suspended")AC.resume();return AC}
+function tone(f,t,d,ty,v,f2){const c=ac();if(!c||!pref.snd)return;const go=()=>{const T=c.currentTime+t,o=c.createOscillator(),gn=c.createGain();o.type=ty||"sine";o.frequency.setValueAtTime(f,T);if(f2)o.frequency.exponentialRampToValueAtTime(f2,T+d);gn.gain.setValueAtTime(.0001,T);gn.gain.linearRampToValueAtTime(v||.12,T+.03);gn.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(gn);gn.connect(c.destination);o.start(T);o.stop(T+d+.05)};if(c.state==="running")go();else c.resume().then(go).catch(()=>{})}
+const SFX={
+start(){[196,247,294,392,494].forEach((f,i)=>tone(f,i*.16,1.1,"triangle",.12))},
+pick(){tone(660,0,.09,"square",.05)},
+lock(){tone(140,0,2.6,"sawtooth",.05,420);for(let i=0;i<10;i++)tone(98,i*.26,.2,"square",.07)},
+ok(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.55,"triangle",.15))},
+win(){[523,523,523,659,784,1047,1047,1319].forEach((f,i)=>tone(f,i*.2,.6,"triangle",.15))},
+bad(){tone(240,0,.6,"sawtooth",.14,110);tone(170,.3,.8,"sawtooth",.14,70)},
+life(){tone(500,0,.45,"sine",.12,1300)},
+ring(){for(let i=0;i<2;i++){tone(1000,i,.18,"square",.05);tone(1000,i+.28,.18,"square",.05)}}
+};
+["pointerdown","touchend","keydown"].forEach(ev=>addEventListener(ev,()=>{const c=ac();if(c){const s=c.createBufferSource();s.buffer=c.createBuffer(1,1,22050);s.connect(c.destination);s.start(0)}},{once:true}));
+let voice=null;
+function pickVoice(){const v=TTS?speechSynthesis.getVoices():[];voice=v.find(x=>x.lang==="en-IN")||v.find(x=>x.lang.startsWith("hi"))||v.find(x=>x.lang.startsWith("en"))||null}
+if(TTS){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(t){if(!TTS||!pref.vox)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="en-IN";u.rate=.95;speechSynthesis.speak(u)}
+const spk=n=>n>=1e7?"ek crore rupaye":n+" rupaye";
+function announce(){const q=g.q;speak(`Sawaal number ${g.i+1}, ${spk(P[g.i])} ke liye. ${q[0]} ${q[1].map((t,k)=>"Option "+L[k]+", "+t+".").join(" ")}`)}
+function ui(){$("snd").textContent=pref.snd?"🔊":"🔇";$("vox").textContent=pref.vox?"🎙️":"🤐";$("snd").setAttribute("aria-pressed",pref.snd);$("vox").setAttribute("aria-pressed",pref.vox)}
+function toggle(k){pref[k]=!pref[k];if(k==="vox"&&!pref.vox&&TTS)speechSynthesis.cancel();try{localStorage.setItem("kbcPref",JSON.stringify(pref))}catch(e){}ui();if(pref.snd)SFX.pick()}
+ui();
+function parseCSV(t){t=t.replace(/^\uFEFF/,"");const rows=[];let r=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===","){r.push(f);f=""}else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;r.push(f);f="";rows.push(r);r=[]}else f+=c}if(f!==""||r.length){r.push(f);rows.push(r)}return rows}
+function bankFromCSV(t){
+  const rows=parseCSV(t).filter(r=>r.some(x=>x.trim()));
+  const h=rows.shift().map(x=>x.trim().toLowerCase()),ix=n=>h.indexOf(n);
+  const need=["level","question","option_a","option_b","option_c","option_d","answer"];
+  const miss=need.filter(n=>ix(n)<0);if(miss.length)throw new Error("missing column: "+miss.join(", "));
+  const bank=Array.from({length:15},()=>[]);
+  rows.forEach((r,n)=>{
+    const lv=parseInt(r[ix("level")]),text=(r[ix("question")]||"").trim(),ans=(r[ix("answer")]||"").trim().toUpperCase();
+    const opts=["option_a","option_b","option_c","option_d"].map(c=>(r[ix(c)]||"").trim());
+    const a=ans.length===1?"ABCD".indexOf(ans):-1;
+    if(!(lv>=1&&lv<=15)||!text||opts.some(o=>!o)||a<0)throw new Error("bad row "+(n+2)+": "+(text||"(empty)"));
+    bank[lv-1].push([text,opts,a]);
+  });
+  const e=bank.findIndex(l=>!l.length);if(e>=0)throw new Error("level "+(e+1)+" has no questions");
+  return bank;
+}
+async function loadCSV(){
+  const st=$("src");
+  try{
+    const res=await fetch("questions.csv",{cache:"no-store"});
+    if(!res.ok)throw new Error("HTTP "+res.status);
+    const bank=bankFromCSV(await res.text());
+    B.length=0;B.push(...bank);
+    st.textContent="Loaded "+bank.flat().length+" questions from questions.csv ✓";
+  }catch(e){st.textContent="Using built-in questions (questions.csv not used: "+e.message+")"}
+  $("go").disabled=false;
+}
+loadCSV();
+function show(s){["home","game","end"].forEach(x=>$(x).classList.toggle("hidden",x!==s))}
+function start(){g={i:0,q:pickQ(0),sel:null,ph:"pick",gone:[],used:{}};show("game");closeM();draw();SFX.start();announce()}
+function safe(i){return i>9?P[9]:i>4?P[4]:0}
+function draw(keep){
+  const a=g.q[2];
+  $("playing").innerHTML=`Sawaal ${g.i+1} of 15 &nbsp;·&nbsp; Playing for <b>${money(P[g.i])}</b>`+([4,9].includes(g.i)?" &nbsp;🔒 Checkpoint":"");
+  $("qt").textContent=g.q[0];
+  $("opts").innerHTML=g.q[1].map((t,k)=>{
+    let c="";
+    if(g.ph==="done"&&k===a)c="ok";else if(g.ph==="done"&&k===g.sel)c="bad";
+    else if(k===g.sel)c=g.ph==="locked"?"lockd":"sel";
+    if(g.gone.includes(k))c+=" gone";
+    return `<button class="opt ${c}" onclick="pick(${k})" ${g.ph!=="pick"?"disabled":""}><span class="in"><b>${L[k]}:</b> ${t}</span></button>`}).join("");
+  const nm=[["f","🔀","50:50"],["a","👥","Audience Poll"],["p","📞","Phone a Friend"],["x","🔄","Flip Question"]];
+  $("lls").innerHTML=nm.map(([k,e,n])=>`<button class="ll" onclick="lifeline('${k}')" ${g.used[k]||g.ph!=="pick"?"disabled":""} aria-label="${n}"><i>${e}</i>${n}</button>`).join("");
+  $("lad").innerHTML=P.map((p,k)=>`<li class="${k===g.i?"cur":k<g.i?"done":""} ${[4,9].includes(k)?"cp":""}"><span>${k+1}</span><span>${money(p)}</span></li>`).reverse().join("");
+  let act="";
+  if(g.ph==="pick"&&g.sel!==null)act=`<button class="btn" onclick="lock()">Lock kiya jaye</button>`;
+  if(g.ph==="done")act=g.ok?(g.i===14?`<button class="btn" onclick="finish('win')">Claim ₹1 Crore</button>`:`<button class="btn" onclick="next()">Agla sawaal</button>`):`<button class="btn" onclick="finish('bad')">See my winnings</button>`;
+  $("act").innerHTML=act;
+  if(!keep)$("msg").textContent=g.ph==="pick"&&g.sel===null?"Option chuniye, ya koi lifeline istemaal kijiye.":$("msg").textContent;
+  if(g.ph==="pick"&&g.sel!==null&&!keep)$("msg").textContent="";
+}
+function msg(t){$("msg").textContent=t}
+function pick(k){if(g.ph!=="pick"||g.gone.includes(k))return;g.sel=k;SFX.pick();speak("Aapne "+L[k]+" chuna. Lock kiya jaye?");draw();msg(`Aapne ${L[k]}: ${g.q[1][k]} chuna hai. Pakka?`)}
+function lock(){g.ph="locked";SFX.lock();speak("Lock kiya gaya.");draw();msg("Lock kiya gaya… dhadkan tez ho rahi hai 💓");setTimeout(reveal,2600)}
+function reveal(){
+  g.ph="done";g.ok=g.sel===g.q[2];draw();if(g.ok){SFX[g.i===14?"win":"ok"]();speak(g.i===14?"Badhai ho! Aap crorepati ban gaye!":"Sahi jawab! Aapne "+spk(P[g.i])+" jeet liye.")}else{SFX.bad();speak("Galat jawab. Sahi jawab tha "+L[g.q[2]]+", "+g.q[1][g.q[2]]+".")}
+  if(g.ok)msg(g.i===14?"Aap CROREPATI ban gaye! 🎉":[4,9].includes(g.i)?`Sahi jawab! ${money(P[g.i])} ab pakka aapka hai. 🔒`:`Sahi jawab! Aapne ${money(P[g.i])} jeet liye.`);
+  else msg(`Galat jawab. Sahi jawab tha ${L[g.q[2]]}: ${g.q[1][g.q[2]]}.`);
+}
+function next(){g.i++;g.q=pickQ(g.i);g.sel=null;g.ph="pick";g.gone=[];draw();announce()}
+function finish(how){
+  const amt=how==="win"?P[14]:how==="quit"?(g.i?P[g.i-1]:0):safe(g.i);
+  const cleared=how==="win"?15:g.i;
+  $("eh").textContent=how==="win"?"Badhai ho! Aap crorepati hain!":how==="quit"?"Aapne khel chhoda":"Galat jawab, lekin khel acha tha";
+  $("ea").textContent=amt?money(amt):"₹0";
+  $("et").textContent=how==="win"?"Saare 15 sawaal sahi. Kamaal kar diya!":how==="quit"?"Samajhdari ka faisla. Aap itni rakam ghar le ja rahe hain.":(amt?`Aap pichhle checkpoint ki rakam le ja rahe hain.`:"Pehle checkpoint se pehle galat jawab, isliye rakam nahin mili.");
+  $("es").textContent=`${cleared} sawaal paar · ${Object.keys(g.used).length} of 4 lifelines used`;
+  show("end");speak(amt?`Aap ghar le ja rahe hain ${spk(amt)}.`:"Is baar kuch nahin mila. Phir koshish kijiye.");
+}
+function askQuit(){
+  const amt=g.i?P[g.i-1]:0;
+  openM(`<h2>Khel chhodna chahte hain?</h2><p>Aap <b>${amt?money(amt):"₹0"}</b> ke saath ghar jayenge.</p><div class="act"><button class="btn" onclick="closeM();finish('quit')">Haan, quit</button><button class="btn ghost" onclick="closeM()">Nahin, khelte hain</button></div>`);
+}
+function openM(h){$("card").innerHTML=h;$("modal").classList.remove("hidden")}
+function closeM(){$("modal").classList.add("hidden")}
+function lifeline(k){
+  if(g.used[k]||g.ph!=="pick")return;
+  g.used[k]=1;const a=g.q[2];
+  const live=[0,1,2,3].filter(x=>!g.gone.includes(x));
+  if(k==="f"){
+    const wr=live.filter(x=>x!==a).sort(()=>Math.random()-.5).slice(0,2);
+    g.gone.push(...wr);if(wr.includes(g.sel))g.sel=null;
+    SFX.life();speak("Computer ji ne do galat jawab hata diye.");draw();msg("Computer ji ne do galat jawab hata diye. 🔀");
+  }
+  if(k==="x"){
+    g.q=pickQ(g.i,g.q[0]);g.sel=null;g.gone=[];
+    SFX.life();draw();announce();msg("Sawaal badal diya gaya, inaam wahi hai. 🔄");
+  }
+  if(k==="a"){
+    const pc=Math.max(.4,.9-.035*g.i)+(Math.random()*.1-.05);
+    const w=live.map(x=>x===a?pc:(1-pc)*(.3+Math.random()));
+    const wrongSum=live.reduce((s,x,j)=>x===a?s:s+w[j],0);
+    const v=live.map((x,j)=>x===a?pc:w[j]/wrongSum*(1-pc));
+    const pct={};live.forEach((x,j)=>pct[x]=Math.round(v[j]*100));
+    const top=Math.max(...Object.values(pct));
+    draw();
+    openM(`<h2>👥 Audience Poll</h2><div class="bars">${[0,1,2,3].map(x=>`<div class="bar ${pct[x]===top?"top":""}"><em>${pct[x]??0}%</em><span data-h="${(pct[x]??0)*1.5}"></span><em><b>${L[x]}</b></em></div>`).join("")}</div><button class="btn" onclick="closeM()">Sawaal par wapas</button>`);
+    setTimeout(()=>document.querySelectorAll(".bar span").forEach(s=>s.style.height=s.dataset.h+"px"),60);
+    SFX.life();const tp=live.find(x=>pct[x]===top);speak(`Audience ne vote kar diya. Sabse zyada vote ${L[tp]} ko mile, ${top} percent.`);
+  }
+  if(k==="p"){
+    const name=rnd(["Rohan","Meera","Arjun","Priya","Kabir"]);
+    const ok=Math.random()<Math.max(.55,.97-.03*g.i);
+    const pickK=ok?a:rnd(live.filter(x=>x!==a));
+    const conf=ok?(g.i<8?"Mujhe pakka yaad hai":"Mujhe lagbhag yakeen hai"):"Mujhe zyada pakka nahin hai, par mera andaza hai";
+    const txt=`Haan ji! Sawaal sun liya. ${conf}… jawab hoga ${L[pickK]}: ${g.q[1][pickK]}. Best of luck!`;
+    draw();
+    openM(`<h2>📞 Phone a Friend</h2><p class="disp" style="margin:0 0 .6rem">Calling ${name}…</p><div class="say" id="say">Ring ring… ring ring…</div><button class="btn" id="back" disabled onclick="closeM()">Sawaal par wapas</button>`);
+    SFX.ring();let n=0;setTimeout(()=>{speak(txt);$("say").textContent="";const t=setInterval(()=>{$("say").textContent=`${name}: “${txt.slice(0,++n)}`+(n>=txt.length?"”":"");if(n>=txt.length){clearInterval(t);$("back").disabled=false}},28)},1600);
+  }
+}
+</script>
+</body>
+</html>
