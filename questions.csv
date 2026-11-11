@@ -3,6 +3,8 @@ level,question,option_a,option_b,option_c,option_d,answer
 1,What is the national flower of India?,Rose,Lotus,Marigold,Jasmine,B
 1,Which colour is at the top of the Indian national flag?,Green,White,Saffron,Blue,C
 1,Which festival is known as the festival of lights?,Holi,Diwali,Eid,Baisakhi,B
+1, What is the square of a number 13?, 156, 179, 169, 144, c
+1, capital of France is ?, london, paris, delhi, newyork, b
 2,How many players from one team are on the field in a cricket match?,9,10,11,12,C
 2,Which is the largest planet in our solar system?,Saturn,Jupiter,Neptune,Earth,B
 2,Who is called the Father of the Nation in India?,Jawaharlal Nehru,Sardar Patel,Mahatma Gandhi,Subhas Chandra Bose,C
@@ -47,5 +49,4 @@ level,question,option_a,option_b,option_c,option_d,answer
 15,The Battle of Plassey was fought in which year?,1757,1764,1857,1526,A
 15,In which year did Gandhi lead the Dandi (Salt) March?,1919,1930,1942,1921,B
 15,Who wrote the Sanskrit play ‘Abhijnanasakuntalam’?,Bhasa,Kalidasa,Banabhatta,Shudraka,B
-1, What is the square of a number 13?, 156, 179, 169, 144, c
-1, capital of France is ?, london, paris, delhi, newyork, b
+
