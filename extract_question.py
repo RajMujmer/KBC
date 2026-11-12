@@ -61,7 +61,7 @@ def process_bot_messages():
             content_to_save = text.replace("/save", ).strip()
             if content_to_save:
                 new_csv_rows.append([ content_to_save])
-                send_reply(token, sender_id, f"✅ Saved to CSV: "\{content_to_save}\"")
+                send_reply(token, sender_id, f"✅ Saved to CSV: \"{content_to_save}\"")
             else:
                 send_reply(token, sender_id, "⚠️ Please write something after /save.")
 
