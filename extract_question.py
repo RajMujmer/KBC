@@ -58,7 +58,7 @@ def process_bot_messages():
 
         # --- TASK 1: SAVE TO CSV ---
         if text.startswith("/save"):
-            content_to_save = text.replace("/save", ).strip()
+            content_to_save = text.replace("/save", "").strip()
             if content_to_save:
                 new_csv_rows.append([ content_to_save])
                 send_reply(token, sender_id, f"✅ Saved to CSV: \"{content_to_save}\"")
