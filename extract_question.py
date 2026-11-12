@@ -75,7 +75,7 @@ def process_bot_messages():
     if new_csv_rows:
         file_exists = os.path.exists(csv_file)
         with open(csv_file, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
+            writer = csv.writer(f, quoting=csv.QUOTE_NONE, escapechar="\\")
             if not file_exists:
                 writer.writerow(['Timestamp_IST', 'Saved_Message'])
             writer.writerows(new_csv_rows)
