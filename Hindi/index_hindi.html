@@ -237,12 +237,12 @@ function bankFromCSV(t){
 async function loadCSV(){
   const st=$("src");
   try{
-    const res=await fetch("questions.csv",{cache:"no-store"});
+    const res=await fetch("question_hindi.csv",{cache:"no-store"});
     if(!res.ok)throw new Error("HTTP "+res.status);
     const bank=bankFromCSV(await res.text());
     B.length=0;B.push(...bank);
-    st.textContent="Loaded "+bank.flat().length+" questions from questions.csv ✓";
-  }catch(e){st.textContent="Using built-in questions (questions.csv not used: "+e.message+")"}
+    st.textContent="Loaded "+bank.flat().length+" questions from question_hindi.csv ✓";
+  }catch(e){st.textContent="Using built-in questions (question_hindi.csv not used: "+e.message+")"}
   $("go").disabled=false;
 }
 loadCSV();
