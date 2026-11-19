@@ -79,12 +79,12 @@ def process_bot_messages():
             continue
 
         # --- TASK 1: SAVE TO CSV ---
-        if text == "/save" or text.startswith("/save "):
+        if text == "/put" or text.startswith("/put "):
             content_to_save = text[len("/save"):].strip()
             row = parse_save(content_to_save) if content_to_save else None
             if row:
                 new_csv_rows.append(row)
-                send_reply(token, sender_id, f"✅ Saved: {row[1]}")
+                send_reply(token, sender_id, f"✅ Stored: {row[1]}")
             else:
                 send_reply(token, sender_id, USAGE)
 
