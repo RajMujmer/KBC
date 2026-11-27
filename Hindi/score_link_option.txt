@@ -13,3 +13,96 @@ index.html mein LEADERBOARD_URL="" dhoondo aur us link ko quotes ke andar paste 
 File upload karo, hard refresh karo.
 
 Agar yeh set nahi kiya, to button dabane par "Leaderboard abhi set up nahin hua hai" dikhega — error nahi aayega.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Leaderboard Feature — Poora Process
+1. Yeh kaam kaise karta hai (overview)
+Player game khelta hai
+        ↓
+Result save hota hai (device + Google Sheet, agar connect hai)
+        ↓
+Sheet ko "Publish to web" se ek public CSV link milta hai
+        ↓
+Quiz website woh CSV link fetch karti hai
+        ↓
+🏆 Leaderboard button dabane par top-10 list dikhti hai
+
+Pehle (Fix 2 se pehle) result sirf ek CSV file ki tarah download hoti thi, ya sidhe Google Sheet mein jaake dekhni padti thi. Ab website khud us Sheet se live data khींच kar dikhati hai — kisi ko kuch download ya khud Sheet khole bina.
+
+2. Poore steps, shuru se
+Step A: Google Sheet aur Apps Script (agar pehle se nahi kiya)
+
+Yeh humne pehle set kiya tha — agar already ho chuka hai, is step ko skip karo.
+
+Naya Google Sheet banao.
+Extensions → Apps Script mein google_apps_script.gs ka code paste karo.
+Deploy → New deployment → Web app, Execute as "Me", Access "Anyone", Deploy karo.
+Woh Web app URL copy karke index.html mein RESULTS_URL="" wali line mein daalo.
+
+Isse har khele gaye game ka result (naam, time, result, sawaal, rakam, lifelines) automatically Sheet mein ek row ban jaati hai.
+
+Step B: Sheet ko "Publish to web" karo (naya step, leaderboard ke liye)
+Google Sheet kholo jahan results jama ho rahe hain.
+File → Share → Publish to web par jaao.
+Dropdown mein "Comma-separated values (.csv)" format chuno (poori sheet ya sirf pehla tab, jahan results hain).
+Publish button dabao, confirm karo.
+Jo link mile, usse copy kar lo. Yeh link kuch aisa dikhega:
+https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv
+Step C: Quiz code mein link daalo
+index.html kholo, Ctrl+F se LEADERBOARD_URL="" dhoondo.
+Us link ko quotes ke andar paste karo:
+js
+const LEADERBOARD_URL="https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv";
+File ko GitHub repo mein upload karo (replace karte hue).
+1-2 minute wait karo, Ctrl+Shift+R se refresh karo.
+Step D: Test karo
+Website ke home screen par 🏆 Leaderboard button dabao.
+Top-10 players ki list dikhni chahiye, sabse zyada jeetne wale upar.
+Agar "Leaderboard load nahin ho saka" dikhe, to Step B/C dobara check karo.
+3. Dono buttons mein farak
+Button	Data kahan se	Kya dikhta hai	Internet zaroori?
+📋 Mere results	Isi device ki browser memory (localStorage)	Sirf tumne is device par jo games khele, unki list	Nahi
+🏆 Leaderboard	Google Sheet (agar LEADERBOARD_URL set hai)	Sabhi players ke results, top-10, rakam ke hisaab se sorted	Haan
+4. Faayde (Benefits)
+Bina download kiye dekhna: Pehle CSV download karke Excel mein kholna padta tha, ab seedha website par dikhta hai.
+Sab players ka data ek jagah: Tumhari khud ki history (Mere results) sirf tumhare device tak simit hai, lekin Leaderboard har device se aaye results ka combined view deta hai.
+Automatic update: Jab bhi koi naya game khelta hai, Sheet mein naya row judta hai. Leaderboard button har baar fresh data fetch karta hai, isliye hamesha latest results dikhte hain.
+Koi extra setup nahi chahiye player ki taraf se: Player ko sirf button dabana hai, Sheet ya Apps Script se koi matlab nahi.
+5. Limitations
+Publish to web public hota hai: Jo link banaya, uske paas jo bhi ho, woh Sheet ka data dekh sakta hai — password se protected nahi hai. Agar results mein sensitive jaankari hai (jaise real phone number ya email), to yeh tarika mat use karo.
+Data thoda purana ho sakta hai: Google ka "Publish to web" cache kabhi-kabhi kuch minute purana data dikhata hai, turant update nahi hota.
+Bade crowd ke liye nahi: Agar ek saath sainkdon log Leaderboard dabayein, to Google Sheets slow ho sakta hai ya rate-limit kar sakta hai.
+Sirf top-10 dikhta hai: Abhi code sirf pehle 10 players dikhata hai, poori list nahi.
+Naam par koi check nahi: Koi bhi apna naam kuch bhi likh sakta hai (jaise doosre ka naam), isliye leaderboard "honesty" par depend karta hai.
+Sheet delete/rename ho jaye to link toot jata hai: Agar kabhi Sheet ka structure badla (columns ka naam ya order), to Leaderboard "load nahin ho saka" dikhayega.
+6. Options / Alternatives
+Option	Kab use karein
+Abhi wala tarika (Publish to web CSV)	Chhote group, dost-parivaar, jahan data secret nahi hai
+Password-protected Sheet + server-side proxy	Agar data private rakhna hai, par iske liye ek chhota server/API chahiye hoga, direct browser se nahi ho sakta
+Sirf "Mere results" rakho, Leaderboard na banao	Agar sirf apna record dekhna hai, dusron se compare nahi karna
+Firebase/Supabase jaisa database	Agar bada crowd expect hai aur real-time updates chahiye, yeh zyada robust hai lekin setup complex hai
+7. Future mein kya badal sakte hain
+Top-10 ki jagah top-20/50, ya poori list — ek line ka code change (.slice(0,10) ki number badal do).
+Filter by date — "Is hafte ka leaderboard", "Aaj ka leaderboard" jaisa option.
+Naam se duplicate hatana — agar ek hi naam se kai baar khela ho, to sirf best score dikhao.
+Rank/medal icons — 🥇🥈🥉 top 3 ke liye.
+Auto-refresh — Leaderboard khula rahe to har 30 second mein khud update ho.
+Apne naam ka rank highlight karna — agar player ka naam list mein hai, to uski row color se highlight ho.
+Private leaderboard (login wala) — agar aage jaake real security chahiye, Cloudflare Access ya Firebase Auth jod kar sirf logged-in logon ko dikhana.
+Stats add karna — average score, sabse zyada lifelines use karne wala, sabse tez game, wagairah.
+
+Agar inme se koi bhi feature abhi add karna ho, bata dena — jaise top-20 karna ho ya naam highlight karna ho, yeh chhote changes hain aur turant ho sakte hain.
