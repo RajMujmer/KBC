@@ -1,0 +1,15 @@
+Ab CSV baar-baar download karne ki zaroorat nahi
+
+Home screen par do naye button aaye hain:
+
+📋 Mere results: Us device par khele gaye saare games ek table mein dikhata hai (samay, result, jeete hue sawaal, rakam, lifelines) — seedha dekho, kuch download kiye bina. Yahin se CSV download ya pura history saaf karne ka option bhi hai.
+🏆 Leaderboard: Agar tumne Google Sheet se results connect kiye hain, to yeh seedha us Sheet se live top-10 list dikhata hai, bina Sheet khole ya CSV download kiye.
+
+Leaderboard chalu karne ke liye (optional):
+
+Apni Google Sheet kholo jahan results jama ho rahe hain.
+File → Share → Publish to web par jaao, format CSV chuno, Publish dabao, aur jo link mile woh copy karo.
+index.html mein LEADERBOARD_URL="" dhoondo aur us link ko quotes ke andar paste karo.
+File upload karo, hard refresh karo.
+
+Agar yeh set nahi kiya, to button dabane par "Leaderboard abhi set up nahin hua hai" dikhega — error nahi aayega.
